@@ -15,6 +15,7 @@ const userCreated = async (userData) => {
     name: userData.space_name || null,
     status: "active",
     website_url: userData.website_url || null,
+    user_id: nextUserId,
   };
   const user = new Users({
     id: nextUserId,

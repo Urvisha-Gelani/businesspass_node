@@ -8,10 +8,11 @@ import {
   sendInvitation,
   updateUser,
 } from "../controller/users.controller.js";
+import { validateCreateUser } from "../validator/user.validator.js";
 const userRouter = express.Router();
 userRouter.use(authenticateToken);
 
-userRouter.post("/users", createUser);
+userRouter.post("/users", validateCreateUser, createUser);
 
 userRouter.get("/users", getAllUsers);
 userRouter.post("/users/:id/send_invitations", sendInvitation);

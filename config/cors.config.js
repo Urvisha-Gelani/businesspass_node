@@ -20,7 +20,7 @@ const corsOptions = {
   },
   credentials: true,
   exposedHeaders: [
-    "Total-Users",
+    "Total",
     "Total-Pages",
     "Current-Page",
     "Per-Page",
