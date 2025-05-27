@@ -1,6 +1,6 @@
 export function setUpdatedAt(schema) {
   const updateHook = function (next) {
-    this.set({ updatedAt: new Date() });
+    this.set({ updated_at: new Date() });
     next();
   };
 

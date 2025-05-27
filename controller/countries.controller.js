@@ -1,7 +1,6 @@
 import countries from "world-countries";
 
-// format the countries according to your required shape
-const formattedCountries = countries.map((country, index) => ({
+export const formattedCountries = countries.map((country, index) => ({
   id: index + 1,
   name: country.name.common,
   iso3: country.cca3,
@@ -12,9 +11,11 @@ const formattedCountries = countries.map((country, index) => ({
   latitude: country.latlng?.[0]?.toString() || "",
   longitude: country.latlng?.[1]?.toString() || "",
   emoji: country.flag,
-  vat: (Math.random() * (25 - 15) + 15).toFixed(1), // you can add real VAT if you have a source or API for that
+  vat: (Math.random() * (25 - 15) + 15).toFixed(1), 
 }));
 
 export const getAllCountries = (req, res) => {
   res.json({ countries: formattedCountries });
 };
+
+
