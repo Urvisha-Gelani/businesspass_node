@@ -1,25 +1,7 @@
 import mongoose from "mongoose";
 import { setUpdatedAt } from "../middlewares/updateTimeStamp.middleware.js";
+import { photoSchema } from "../helpers/index.js";
 
-const photoSchema = new mongoose.Schema(
-  {
-    id: { type: Number, required: true },
-    url: { type: String, required: true },
-  },
-  {
-    versionKey: false,
-    toJSON: {
-      transform(doc, ret) {
-        delete ret._id;
-      },
-    },
-    toObject: {
-      transform(doc, ret) {
-        delete ret._id;
-      },
-    },
-  }
-);
 
 const LocationSchema = new mongoose.Schema(
   {

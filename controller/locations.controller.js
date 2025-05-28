@@ -77,7 +77,7 @@ export const getLocations = async (req, res) => {
       .limit(limit);
 
     res.set({
-      Total: totalLocations,
+      "Total": totalLocations,
       "Total-Pages": Math.ceil(totalLocations / limit),
       "Current-Page": page,
       "Per-Page": limit,
@@ -89,13 +89,37 @@ export const getLocations = async (req, res) => {
   }
 };
 
+export const updateLocation = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { location } = req.body;
+    if (!id) {
+      return res.status(422).json({ message: "Invalid request data" });
+    }
+    const updatedLocation = await Locations.findOneAndUpdate(
+      { id },
+      { $set: location },
+      { new: true }
+    );
+    if (!updatedLocation) {
+      return res.status(404).json({ message: "Location not found" });
+    }
+    res.status(200).json({ location: updatedLocation });
+  } catch (error) {
+    logger.error(`Error updating location: ${error}`);
+    res.status(500).json({ error: "Error updating location" });
+  }
+};
 export const deleteLocation = async (req, res) => {
   try {
     const { id } = req.params;
     if (!id) {
       return res.status(422).json({ message: "Invalid request data" });
     }
-    const deletedLocation = await Locations.findOneAndDelete({ id });
+    const deletedLocation = await Locations.findOneAndUpdate(
+      { id },
+      { status: "deleted" }
+    );
     if (!deletedLocation) {
       return res.status(404).json({ message: "Location not found" });
     }
