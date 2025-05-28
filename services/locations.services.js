@@ -9,8 +9,9 @@ const locationCreated = async (locationData) => {
     .toString(36)
     .substring(2, 10)}`;
   const country = formattedCountries.find(
-    (country) => country.id === locationData.country_id
+    (country) => country.id == locationData.country_id
   );
+  console.log("country", country);
   console.log(formattedCountries, "formattedCountries");
   const location = new Locations({
     id: nextUserId,

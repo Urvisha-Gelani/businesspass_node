@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import logger from "../utils/logger.js";
 import Counter from "./counter.js";
 export const generateUniqueId = async (name) => {
@@ -12,3 +13,23 @@ export const generateUniqueId = async (name) => {
   logger.info(`Next sequence value: ${result}`);
   return result.seq;
 };
+
+export const photoSchema = new mongoose.Schema(
+  {
+    id: { type: Number, required: true },
+    url: { type: String, required: true },
+  },
+  {
+    versionKey: false,
+    toJSON: {
+      transform(doc, ret) {
+        delete ret._id;
+      },
+    },
+    toObject: {
+      transform(doc, ret) {
+        delete ret._id;
+      },
+    },
+  }
+);

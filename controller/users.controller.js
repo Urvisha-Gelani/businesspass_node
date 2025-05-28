@@ -2,17 +2,26 @@ import Users from "../models/users.model.js";
 import userCreated from "../services/users.services.js";
 import logger from "../utils/logger.js";
 import { sendVerificationEmail } from "../services/email.services.js";
+import Workspace from "../models/workspace.model.js";
 
 export const createUser = async (req, res) => {
   try {
     console.log("req.body+++++++++++++++++++++++++++", req.body);
     const { user } = req.body;
     const currentUser = req.user.id;
-
+    const { email } = user;
     const newUserData = {
       ...user,
       created_by_id: currentUser,
     };
+    const existingUser = await Users.findOne({
+      email,
+    });
+    logger.info(`existingUser: ${existingUser}`);
+    if (existingUser) {
+      logger.error(`createUser: Email already exists`);
+      return res.status(422).json({ email: ["has already been taken"] });
+    }
     const payloadUser = await userCreated(newUserData);
     if (!user) {
       return res.status(400).json({ message: "User creation failed" });
@@ -85,7 +94,7 @@ export const getAllUsers = async (req, res) => {
     });
 
     res.set({
-      "Total": totalUsers,
+      Total: totalUsers,
       "Total-Pages": Math.ceil(totalUsers / limit),
       "Current-Page": page,
       "Per-Page": limit,
@@ -126,15 +135,21 @@ export const sendInvitation = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const { id } = req.params;
-    const { space_name, ...user } = req.body.user;
-    console.log("space_name", space_name);
+    const { user } = req.body;
+    console.log("space_name", user.space_name);
     console.log("user", user);
     if (!id || !user) {
       return res.status(422).json({ message: "Invalid request data" });
     }
+    const updateWorkspace = await Workspace.findOneAndUpdate(
+      { user_id: id },
+      { name: user.space_name },
+      { new: true, runValidators: true }
+    );
+
     const updatedUser = await Users.findOneAndUpdate(
       { id },
-      { ...user, workspace: { name: space_name, ...user.workspace } },
+      { ...user, workspace: updateWorkspace },
       { new: true, runValidators: true }
     );
 
@@ -157,7 +172,10 @@ export const deleteUser = async (req, res) => {
     if (!id) {
       return res.status(422).json({ message: "Invalid request data" });
     }
-    const deletedUser = await Users.findOneAndDelete({ id });
+    const deletedUser = await Users.findOneAndUpdate(
+      { id },
+      { status: "deleted" }
+    );
     if (!deletedUser) {
       return res.status(404).json({ message: "User not found" });
     }
@@ -165,5 +183,79 @@ export const deleteUser = async (req, res) => {
   } catch (error) {
     logger.error(`Error deleting user: ${error}`);
     res.status(500).json({ error: "Error deleting user" });
+  }
+};
+
+export const verifyUser = async (req, res) => {
+  try {
+    const { token } = req.params;
+    if (!token) {
+      return res.status(422).json({ message: "Invalid request data" });
+    }
+    const user = await Users.findOne({ verify_token: token });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    console.log("user", user);
+    res.status(200).json({ user, token: user.verify_token });
+  } catch (error) {
+    logger.error(`Error verifying user: ${error}`);
+    res.status(500).json({ error: "Error verifying user" });
+  }
+};
+
+export const confirmUser = async (req, res) => {
+  try {
+    const { token } = req.params;
+    const userData = req.body;
+
+    if (!token || !userData) {
+      return res.status(422).json({ message: "Invalid request data" });
+    }
+
+    const user = await Users.findOne({ verify_token: token });
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const updateWorkspace = await Workspace.findOneAndUpdate(
+      { user_id: user.id },
+      { name: userData.space_name },
+      { new: true, runValidators: true }
+    );
+
+    const updatedUser = await Users.findOneAndUpdate(
+      { id: user.id },
+      { ...userData, workspace: updateWorkspace },
+      { new: true, runValidators: true }
+    );
+
+    const { password, verify_token, ...safeUser } = updatedUser.toObject();
+    res.status(200).json({ user: safeUser, token: user.verify_token });
+  } catch (error) {
+    logger.error(`Error updating user: ${error}`);
+    res.status(500).json({ error: "Error updating user" });
+  }
+};
+
+export const createPassword = async (req, res) => {
+  try {
+    const { user: reqUser } = req.body;
+    const { password, reset_password_token } = reqUser;
+    if (!reset_password_token || !password) {
+      return res.status(422).json({ message: "Invalid request data" });
+    }
+    const user = await Users.findOne({ verify_token: reset_password_token });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    user.password = password;
+    user.status = "activated";
+    await user.save();
+    res.status(204).json({ message: "Password updated successfully" });
+  } catch (error) {
+    logger.error(`Error updating password: ${error}`);
+    res.status(500).json({ error: "Error updating password" });
   }
 };

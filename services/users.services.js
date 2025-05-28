@@ -1,6 +1,7 @@
 import generateJwtToken from "../helpers/generate_token.js";
 import { generateUniqueId } from "../helpers/index.js";
 import Users from "../models/users.model.js";
+import Workspace from "../models/workspace.model.js";
 import logger from "../utils/logger.js";
 import { sendVerificationEmail } from "./email.services.js";
 
@@ -17,6 +18,8 @@ const userCreated = async (userData) => {
     website_url: userData.website_url || null,
     user_id: nextUserId,
   };
+  const workspaceData = new Workspace(workspace);
+  await workspaceData.save();
   const user = new Users({
     id: nextUserId,
     verify_token,
