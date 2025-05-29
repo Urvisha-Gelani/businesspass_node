@@ -1,5 +1,5 @@
 import Explore_membership from "../models/explore_membership.model.js";
-import exploreMemberCreated from "../services/explore_membership.services.js";
+import exploreMemberCreated from "../services/explore_membership.service.js";
 
 export const CreateExploreMemberships = async (req, res) => {
   try {

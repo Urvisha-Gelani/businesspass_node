@@ -1,4 +1,5 @@
 import Locations from "../models/locations.model.js";
+import Offers from "../models/offer.model.js";
 import logger from "../utils/logger.js";
 
 export const locationOffers = async (req, res) => {
@@ -8,15 +9,21 @@ export const locationOffers = async (req, res) => {
       return res.status(422).json({ message: "Invalid workspace ID" });
     }
     const locations = await Locations.find({ workspace_id: workspaceId });
-    if (!locations) {
-      return res.status(404).json({ message: "Location not found" });
+    const offers = await Offers.find({ workspace_id: workspaceId });
+    if (!locations || !offers) {
+      return res.status(404).json({ message: "Location offer not found" });
     }
     console.log("locations", locations);
     const locationData = locations.map((location) => {
-      const { id, name, workspace_id } = location.toObject();
-      return { id, name, workspace_id };
+      const { id, name, status } = location.toObject();
+      return { id, name, status };
     });
-    res.status(200).json({ locations: locationData });
+
+    const offerData = offers.map((offer) => {
+      const { id, name, status, ref_id, pricing_type } = offer.toObject();
+      return { id, name, status, ref_id, pricing_type };
+    });
+    res.status(200).json({ locations: locationData, offers: offerData });
   } catch (error) {
     logger.error(`Error getting location offers: ${error}`);
     res.status(500).json({ error: "Error getting location offers" });
