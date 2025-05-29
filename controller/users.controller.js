@@ -1,7 +1,7 @@
 import Users from "../models/users.model.js";
-import userCreated from "../services/users.services.js";
+import userCreated from "../services/users.service.js";
 import logger from "../utils/logger.js";
-import { sendVerificationEmail } from "../services/email.services.js";
+import { sendVerificationEmail } from "../services/email.service.js";
 import Workspace from "../models/workspace.model.js";
 
 export const createUser = async (req, res) => {

@@ -33,10 +33,9 @@ const offersSchema = new mongoose.Schema(
       enum: ["per_hour", "per_count", "keys"],
     },
     limited_per: { type: String, required: true, default: null },
-    person_capacity: { type: Number, required: true, default: null },
+    person_capacity: { type: Number, default: null },
     day_count: {
       type: String,
-      required: true,
       default: null,
       enum: ["day", "week", "month"],
     },

@@ -3,7 +3,7 @@ import { generateUniqueId } from "../helpers/index.js";
 import Users from "../models/users.model.js";
 import Workspace from "../models/workspace.model.js";
 import logger from "../utils/logger.js";
-import { sendVerificationEmail } from "./email.services.js";
+import { sendVerificationEmail } from "./email.service.js";
 
 const userCreated = async (userData) => {
   console.log("userData", userData);

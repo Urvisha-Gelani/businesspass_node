@@ -10,6 +10,9 @@ import { conversionRates } from "./controller/locations_offers.controller.js";
 import verifyUserRouter from "./routes/verify_user.routes.js";
 import exploreMembershipRouter from "./routes/explore_membership.routes.js";
 import adminRouter from "./routes/admin.routes.js";
+import offersRouter from "./routes/offers.routes.js";
+import offerLocalesRouter from "./routes/offer_locales.routes.js";
+import keyListingRouter from "./routes/key_listing.routes.js";
 
 const app = express();
 app.use(corsMiddleware);
@@ -22,18 +25,11 @@ app.use("/api/v1/admin", userRouter);
 app.use("/api/v1/users", authRouter);
 app.use("/api/v1", countriesRouter);
 app.use("/api/v1", locationRouter);
+app.use("/api/v1", offersRouter);
+app.use("/api/v1", offerLocalesRouter);
+app.use("/api/v1", keyListingRouter);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/v1/conversion_rates/default_conversion_rate", conversionRates);
-// app.put("/:bucket_name/:key", (req, res) => {
-//   const { bucket_name, key } = req.params;
-//   const filePath = path.join(process.cwd(), "uploads", bucket_name, key);
-//   res.download(filePath, (err) => {
-//     if (err) {
-//       console.error("File download error:", err);
-//       res.status(404).send("File not found");
-//     }
-//   });
-// });
 
 app.use(errorHandler);
 

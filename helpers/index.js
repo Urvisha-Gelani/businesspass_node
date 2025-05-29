@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from "uuid";
 import mongoose from "mongoose";
 import logger from "../utils/logger.js";
 import Counter from "./counter.js";
@@ -33,3 +34,7 @@ export const photoSchema = new mongoose.Schema(
     },
   }
 );
+
+export const generateSlug = () => {
+  return uuidv4();
+};

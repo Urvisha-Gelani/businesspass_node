@@ -1,6 +1,6 @@
 import Locations from "../models/locations.model.js";
-import locationCreated from "../services/locations.services.js";
-import { generateMockPresignedUrls } from "../services/photo.services.js";
+import locationCreated from "../services/locations.service.js";
+import { generateMockPresignedUrls } from "../services/photo.service.js";
 import logger from "../utils/logger.js";
 import path from "path";
 const uploadDir = path.join(process.cwd(), "uploads");
@@ -30,7 +30,7 @@ export const createLocations = async (req, res) => {
 
 export const generatePresignedUrls = async (req, res) => {
   const locationId = req.params.id;
-  const { photos } = req.body.location;
+  const { photos } = req.body.location || req.body.offer;
 
   const location = await Locations.findOne({ id: Number(locationId) });
   if (!location) return res.status(404).json({ error: "Location not found" });
