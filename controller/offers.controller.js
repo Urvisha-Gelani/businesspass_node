@@ -38,15 +38,18 @@ export const getOffers = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.per, 10) || 10;
     const skip = (page - 1) * limit;
-    const workspaceId = req.user.workspace.id;
+    const { workspace, location_id } = req.user;
+    const { id: workspace_id } = workspace;
 
-    const filter = { workspace_id: workspaceId };
-
+    const filter = { workspace_id: workspace_id };
+    if (req.user.user_type === "cowork_user") {
+      filter.location_id = location_id;
+    }
     if (req.query.name) {
       filter.name = { $regex: req.query.name, $options: "i" };
     }
-    if (req.query.location_id) {
-      const locationId = Number(req.query.location_id);
+    if (req.query.location_id || req.user.user_type === "cowork_user") {
+      const locationId = Number(req.query.location_id || location_id);
       if (isNaN(locationId)) {
         return res.status(400).json({ message: "Invalid location_id" });
       }
@@ -93,7 +96,7 @@ export const getOffers = async (req, res) => {
       });
 
     res.set({
-      Total: totalOffers,
+      "Total": totalOffers,
       "Total-Pages": Math.ceil(totalOffers / limit),
       "Current-Page": page,
       "Per-Page": limit,

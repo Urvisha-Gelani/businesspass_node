@@ -8,12 +8,15 @@ export const OffersFindByDropdown = async (req, res) => {
   try {
     const { dropdown_ids } = req.body;
 
-    const dropdown_offers = await Offers.find({ pricing_type: "keys" })
+    const dropdown_offers = await Offers.find({
+      pricing_type: "keys",
+      status: { $ne: "deleted" },
+    })
       .select({ id: 1, name: 1, _id: 0 })
       .lean();
 
     const offers = await Offers.find(
-      { pricing_type: { $nin: ["keys"] } },
+      { pricing_type: { $nin: ["keys"] }, status: { $ne: "deleted" } },
       {
         id: 1,
         name: 1,

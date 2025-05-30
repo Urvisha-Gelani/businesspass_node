@@ -1,11 +1,12 @@
 import app from "./app.js";
 import connectDB from "./config/db.config.js";
+import expireOffersJob from "./jobs/expireOffers.job.js";
 import logger from "./utils/logger.js";
 import dotenv from "dotenv";
 import os from "os";
 
 dotenv.config();
-
+expireOffersJob.start();
 const interfaces = os.networkInterfaces();
 logger.info(`interfaces: ${interfaces}`);
 export const getLocalIP = () => {

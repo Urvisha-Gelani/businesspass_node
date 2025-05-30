@@ -9,13 +9,14 @@ export const login = async (req, res) => {
     } = req.body;
     console.log(email, "email-------------------");
     const user = await Users.findOne({ email });
-    console.log(
-      logInPassword,
-      "logInPassword-------------------",
-      user.matchPassword(logInPassword)
-    );
+    if (!user) {
+      return res.status(422).json({ message: "User not found" });
+    }
+    if (user.status === "deleted") {
+      return res.status(422).json({ message: "User is deleted" });
+    }
     console.log("user*****************************", user);
-    if (!user || !(await user.matchPassword(logInPassword))) {
+    if (!(await user.matchPassword(logInPassword))) {
       console.log("Invalid credentials");
       return res.status(422).json({ message: "Invalid credentials" });
     }
