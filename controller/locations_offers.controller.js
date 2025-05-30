@@ -4,12 +4,19 @@ import logger from "../utils/logger.js";
 
 export const locationOffers = async (req, res) => {
   try {
-    const workspaceId = req.user.workspace.id;
-    if (!workspaceId) {
+    const { location_id, workspace, user_type } = req.user;
+    const { id: workspace_id } = workspace;
+    if (!workspace_id) {
       return res.status(422).json({ message: "Invalid workspace ID" });
     }
-    const locations = await Locations.find({ workspace_id: workspaceId });
-    const offers = await Offers.find({ workspace_id: workspaceId });
+    let filter = { workspace_id, status: { $ne: "deleted" } };
+    let offerFilter = { workspace_id, status: { $ne: "deleted" } };
+    if (user_type === "cowork_user") {
+      filter.id = location_id;
+      offerFilter.location_id = location_id;
+    }
+    const locations = await Locations.find(filter);
+    const offers = await Offers.find(offerFilter);
     if (!locations || !offers) {
       return res.status(404).json({ message: "Location offer not found" });
     }

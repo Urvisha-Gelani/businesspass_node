@@ -3,15 +3,30 @@ import { setUpdatedAt } from "../middlewares/updateTimeStamp.middleware.js";
 import { hashPasswordMiddleware } from "../middlewares/password.middleware.js";
 import bcrypt from "bcryptjs";
 
-const WorkspaceSchema = new mongoose.Schema({
-  id: Number,
-  name: String,
-  status: String,
-  website_url: { type: String, default: null },
-  created_at: { type: Date, default: Date.now },
-  updated_at: { type: Date, default: Date.now },
-  user_id: { type: Number, default: null },
-});
+const WorkspaceSchema = new mongoose.Schema(
+  {
+    id: Number,
+    name: String,
+    status: String,
+    website_url: { type: String, default: null },
+    created_at: { type: Date, default: Date.now },
+    updated_at: { type: Date, default: Date.now },
+    user_id: { type: Number, default: null },
+  },
+  {
+    versionKey: false,
+    toJSON: {
+      transform(doc, ret) {
+        delete ret._id;
+      },
+    },
+    toObject: {
+      transform(doc, ret) {
+        delete ret._id;
+      },
+    },
+  }
+);
 
 const UserSchema = new mongoose.Schema(
   {
@@ -69,6 +84,8 @@ const UserSchema = new mongoose.Schema(
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
     created_by_id: { type: Number, default: null },
+    location_name: { type: String, default: null },
+    location_id: { type: Number, default: null },
   },
   {
     versionKey: false,

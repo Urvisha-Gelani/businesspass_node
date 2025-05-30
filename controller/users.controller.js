@@ -26,8 +26,14 @@ export const createUser = async (req, res) => {
     if (!user) {
       return res.status(400).json({ message: "User creation failed" });
     }
-    const { password, verify_token, workspace, ...safeUser } =
-      payloadUser.toObject();
+    const {
+      password,
+      verify_token,
+      workspace,
+      location_name,
+      location_id,
+      ...safeUser
+    } = payloadUser.toObject();
     safeUser.isSuperAdmin = user.user_type === "super_admin";
 
     res.status(201).json({ user: { ...safeUser, workspace: null } });
@@ -41,8 +47,9 @@ export const getAllUsers = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.per, 10) || 10;
     const skip = (page - 1) * limit;
-    const loginUser = req.user.id;
-    const filter = { created_by_id: loginUser };
+    const user = req.user;
+    const { id: user_id } = user;
+    const filter = { created_by_id: user_id };
     console.log("filter", filter);
     if (req.query.name) {
       filter.$or = [
@@ -141,15 +148,22 @@ export const updateUser = async (req, res) => {
     if (!id || !user) {
       return res.status(422).json({ message: "Invalid request data" });
     }
-    const updateWorkspace = await Workspace.findOneAndUpdate(
-      { user_id: id },
-      { name: user.space_name },
-      { new: true, runValidators: true }
-    );
+    let workspaceUpdate = {};
+    if (user.space_name) {
+      const updatedWorkspace = await Workspace.findOneAndUpdate(
+        { user_id: user.id },
+        { name: user.space_name },
+        { new: true, runValidators: true }
+      );
+      workspaceUpdate.workspace = updatedWorkspace;
+    }
 
     const updatedUser = await Users.findOneAndUpdate(
-      { id },
-      { ...user, workspace: updateWorkspace },
+      { id: user.id },
+      {
+        ...user,
+        ...workspaceUpdate,
+      },
       { new: true, runValidators: true }
     );
 
@@ -196,6 +210,9 @@ export const verifyUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
+    if (user.password) {
+      return res.status(404).json({ message: "User already verified" });
+    }
     console.log("user", user);
     res.status(200).json({ user, token: user.verify_token });
   } catch (error) {
@@ -208,7 +225,6 @@ export const confirmUser = async (req, res) => {
   try {
     const { token } = req.params;
     const userData = req.body;
-
     if (!token || !userData) {
       return res.status(422).json({ message: "Invalid request data" });
     }
@@ -218,16 +234,22 @@ export const confirmUser = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    const updateWorkspace = await Workspace.findOneAndUpdate(
-      { user_id: user.id },
-      { name: userData.space_name },
-      { new: true, runValidators: true }
-    );
+    let workspaceUpdate = {};
+    if (userData.space_name) {
+      const updatedWorkspace = await Workspace.findOneAndUpdate(
+        { user_id: user.id },
+        { name: userData.space_name },
+        { new: true, runValidators: true }
+      );
+      workspaceUpdate.workspace = updatedWorkspace;
+    }
 
     const updatedUser = await Users.findOneAndUpdate(
       { id: user.id },
-      { ...userData, workspace: updateWorkspace },
+      {
+        ...userData,
+        ...workspaceUpdate,
+      },
       { new: true, runValidators: true }
     );
 

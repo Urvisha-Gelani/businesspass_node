@@ -44,8 +44,13 @@ export const getLocations = async (req, res) => {
     const page = parseInt(req.query.page, 10) || 1;
     const limit = parseInt(req.query.per, 10) || 10;
     const skip = (page - 1) * limit;
+    console.log(req.user, "req.user+++++++++++++++++++++++++++");
     const workspaceId = req.user.workspace.id;
     const filter = { workspace_id: workspaceId };
+
+    if (req.user.user_type === "cowork_user") {
+      filter.id = req.user.location_id;
+    }
 
     if (req.query.name) {
       filter.name = { $regex: req.query.name, $options: "i" };
