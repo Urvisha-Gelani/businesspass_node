@@ -1,4 +1,4 @@
-import { generateUniqueId } from "../helpers/index.js";
+import { generateReferenceId, generateUniqueId } from "../helpers/index.js";
 import Offers from "../models/offer.model.js";
 import offerLocalesCreated from "./offer_locales.service.js";
 
@@ -6,7 +6,7 @@ const offerCreated = async (offerData) => {
   const { location_id, offer, workspace_id } = offerData;
 
   const offerId = await generateUniqueId("offerId");
-  const referenceId = Math.floor(100000 + Math.random() * 900000);
+  const referenceId = generateReferenceId();
 
   const {
     limited_per,
@@ -18,13 +18,11 @@ const offerCreated = async (offerData) => {
     ...restOfferFields
   } = offer;
 
-  // Create offer_locales
   const createdLocale = await offerLocalesCreated({
     offer_id: offerId,
     ...offer_locales_attributes[0],
   });
 
-  // Create new offer
   const newOffer = new Offers({
     id: offerId,
     workspace_id,

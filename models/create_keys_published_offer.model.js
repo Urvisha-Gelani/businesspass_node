@@ -9,6 +9,7 @@ const createKeysPublishedOfferSchema = new mongoose.Schema(
     offers_ids: { type: Array, default: [] },
     keys: { type: Boolean, default: false },
     dropdown_ids: { type: Array, default: [] },
+    workspace_id: { type: Number, required: true },
     created_at: { type: Date, default: Date.now },
     updated_at: { type: Date, default: Date.now },
   },

@@ -151,22 +151,22 @@ export const updateUser = async (req, res) => {
     let workspaceUpdate = {};
     if (user.space_name) {
       const updatedWorkspace = await Workspace.findOneAndUpdate(
-        { user_id: user.id },
+        { user_id: id },
         { name: user.space_name },
         { new: true, runValidators: true }
       );
       workspaceUpdate.workspace = updatedWorkspace;
     }
-
+    console.log("workspaceUpdate", workspaceUpdate);
     const updatedUser = await Users.findOneAndUpdate(
-      { id: user.id },
+      { id },
       {
         ...user,
         ...workspaceUpdate,
       },
       { new: true, runValidators: true }
     );
-
+    console.log("updatedUser", updatedUser);
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }

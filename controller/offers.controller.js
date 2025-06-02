@@ -42,9 +42,6 @@ export const getOffers = async (req, res) => {
     const { id: workspace_id } = workspace;
 
     const filter = { workspace_id: workspace_id };
-    if (req.user.user_type === "cowork_user") {
-      filter.location_id = location_id;
-    }
     if (req.query.name) {
       filter.name = { $regex: req.query.name, $options: "i" };
     }
@@ -96,7 +93,7 @@ export const getOffers = async (req, res) => {
       });
 
     res.set({
-      "Total": totalOffers,
+      Total: totalOffers,
       "Total-Pages": Math.ceil(totalOffers / limit),
       "Current-Page": page,
       "Per-Page": limit,

@@ -40,7 +40,7 @@ const offersSchema = new mongoose.Schema(
       enum: ["day", "week", "month"],
     },
     custom_day: { type: String, default: null },
-    ref_id: { type: Number, required: true },
+    ref_id: { type: String, required: true },
     remaining_space: { type: Number, default: null },
     photos_order: { type: Array, default: [] },
     language: { type: String, required: true, default: "en" },

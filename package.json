@@ -25,5 +25,9 @@
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "world-countries": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.29",
+    "typescript": "^5.8.3"
   }
 }

@@ -14,6 +14,7 @@ import offersRouter from "./routes/offers.routes.js";
 import offerLocalesRouter from "./routes/offer_locales.routes.js";
 import keyListingRouter from "./routes/key_listing.routes.js";
 import coWorkUserRouter from "./routes/cowork_user.routes.js";
+import keyNumbersRouter from "./routes/key_numbers.routes.js";
 
 const app = express();
 app.use(corsMiddleware);
@@ -30,6 +31,7 @@ app.use("/api/v1", offersRouter);
 app.use("/api/v1", offerLocalesRouter);
 app.use("/api/v1", coWorkUserRouter);
 app.use("/api/v1", keyListingRouter);
+app.use("/api/v1", keyNumbersRouter);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 app.use("/api/v1/conversion_rates/default_conversion_rate", conversionRates);
 

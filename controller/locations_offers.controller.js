@@ -10,7 +10,10 @@ export const locationOffers = async (req, res) => {
       return res.status(422).json({ message: "Invalid workspace ID" });
     }
     let filter = { workspace_id, status: { $ne: "deleted" } };
-    let offerFilter = { workspace_id, status: { $ne: "deleted" } };
+    let offerFilter = {
+      workspace_id,
+      status: { $nin: ["deleted", "expired", "limit_reached"] },
+    };
     if (user_type === "cowork_user") {
       filter.id = location_id;
       offerFilter.location_id = location_id;
