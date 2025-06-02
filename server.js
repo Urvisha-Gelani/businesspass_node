@@ -4,9 +4,13 @@ import expireOffersJob from "./jobs/expireOffers.job.js";
 import logger from "./utils/logger.js";
 import dotenv from "dotenv";
 import os from "os";
+import limitReachedOffersJob from "./jobs/limitReachedOffers.job.js";
 
 dotenv.config();
+
 expireOffersJob.start();
+limitReachedOffersJob.start();
+
 const interfaces = os.networkInterfaces();
 logger.info(`interfaces: ${interfaces}`);
 export const getLocalIP = () => {
