@@ -1,0 +1,1 @@
+export const apiRoutes = "/api/v1";

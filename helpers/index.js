@@ -3,6 +3,7 @@ import mongoose from "mongoose";
 import logger from "../utils/logger.js";
 import Counter from "./counter.js";
 import crypto from "crypto";
+import moment from "moment-timezone";
 export const generateUniqueId = async (name) => {
   const result = await Counter.findOneAndUpdate(
     { id: name },
@@ -49,12 +50,6 @@ export const getRandomChar = (charSet) => {
   crypto.getRandomValues(array); // strong randomness
   return charSet[array[0] % charSet.length];
 };
-
-/*************  ✨ Windsurf Command ⭐  *************/
-/**
- * Generates a 12-character alphanumeric string with 3 parts separated by dashes, like "X8RF-3947-QJGZ".
-
-/*******  0b4c7f1e-e886-4ecf-8686-354f0908d7cc  *******/
 export const generateKeyNumber = () => {
   const letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   const digits = "0123456789";
@@ -69,4 +64,17 @@ export const generateKeyNumber = () => {
   );
 
   return `${part1}-${part2}-${part3}`;
+};
+
+export const generateBookingRefNumber = (offerName, refNumber) => {
+  const offerCode = offerName
+    .replace(/[^a-zA-Z]/g, "")
+    .toUpperCase()
+    .slice(0, 3);
+  const refCode = crypto.randomBytes(refNumber).toString("hex");
+  return `${offerCode}${refCode}`.toUpperCase();
+};
+
+export const formateDate = (date) => {
+  return moment(date).tz("Asia/Kolkata").format("DD-MM-YYYY");
 };

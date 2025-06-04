@@ -74,34 +74,27 @@ export const getAllCoWorkUsers = async (req, res) => {
       "workspace.id": workspace_id,
       user_type: "cowork_user",
     };
+    const queryFields = [
+      "name",
+      "email",
+      "location_name",
+      "phone",
+      "status",
+      "permissions",
+    ];
+    queryFields.forEach((key) => {
+      const value = req.query[key];
+      if (!value) return;
 
-    if (req.query.name) {
-      filter.$or = [
-        { first_name: { $regex: req.query.name, $options: "i" } },
-        { last_name: { $regex: req.query.name, $options: "i" } },
-      ];
-    }
-
-    if (req.query.email) {
-      filter.email = { $regex: req.query.email, $options: "i" };
-    }
-
-    if (req.query.location_name) {
-      filter.location_name = { $regex: req.query.location_name, $options: "i" };
-    }
-
-    if (req.query.phone) {
-      filter.phone = { $regex: req.query.phone, $options: "i" };
-    }
-
-    if (req.query.status) {
-      filter.status = { $regex: req.query.status, $options: "i" };
-    }
-
-    if (req.query.permissions) {
-      filter.permissions = { $regex: req.query.permissions, $options: "i" };
-    }
-
+      if (key === "name") {
+        filter.$or = [
+          { first_name: { $regex: value, $options: "i" } },
+          { last_name: { $regex: value, $options: "i" } },
+        ];
+      } else {
+        filter[key] = { $regex: value, $options: "i" };
+      }
+    });
     console.log("filter", filter);
     const totalUsers = await Users.countDocuments(filter);
 

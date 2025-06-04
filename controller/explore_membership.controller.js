@@ -25,6 +25,13 @@ export const getExploreMemberships = async (req, res) => {
     const limit = parseInt(req.query.per, 10) || 10;
     const skip = (page - 1) * limit;
     const filter = {};
+    const queryFields = ["name", "email", "explore_type"];
+    queryFields.forEach((key) => {
+      const value = req.query[key];
+      if (!value) return;
+
+      filter[key] = { $regex: value, $options: "i" };
+    });
     if (req.query.name) {
       filter.name = { $regex: req.query.name, $options: "i" };
     }
@@ -49,7 +56,7 @@ export const getExploreMemberships = async (req, res) => {
       .limit(limit);
 
     res.set({
-      "Total": totalExploreMemberships,
+      Total: totalExploreMemberships,
       "Total-Pages": Math.ceil(totalExploreMemberships / limit),
       "Current-Page": page,
       "Per-Page": limit,

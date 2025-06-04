@@ -23,25 +23,20 @@ export const getUserLocations = async (req, res) => {
     console.log("workspace", workspace);
     const { id: workspace_id } = workspace;
     const filter = { workspace_id: workspace_id };
+    const queryFields = [
+      "name",
+      "address",
+      "phone_no",
+      "country_name",
+      "status",
+    ];
 
-    if (req.query.name) {
-      filter.name = { $regex: req.query.name, $options: "i" };
-    }
+    queryFields.forEach((key) => {
+      const value = req.query[key];
+      if (!value) return;
 
-    if (req.query.address) {
-      filter.address = { $regex: req.query.address, $options: "i" };
-    }
-
-    if (req.query.phone_no) {
-      filter.phone_no = { $regex: req.query.phone_no, $options: "i" };
-    }
-
-    if (req.query.country_name) {
-      filter.country_name = { $regex: req.query.country_name, $options: "i" };
-    }
-    if (req.query.status) {
-      filter.status = { $regex: req.query.status, $options: "i" };
-    }
+      filter[key] = { $regex: value, $options: "i" };
+    });
 
     const totalLocations = await Locations.countDocuments(filter);
     if (totalLocations === 0) {
@@ -107,22 +102,14 @@ export const getAdminOffers = async (req, res) => {
     const { id: workspace_id } = workspace;
     console.log("workspace_id", workspace_id);
     const filter = { workspace_id: workspace_id };
-    if (req.query.name) {
-      filter.name = { $regex: req.query.name, $options: "i" };
-    }
 
-    if (req.query.offer_type) {
-      filter.offer_type = { $regex: req.query.offer_type, $options: "i" };
-    }
-    if (req.query.price) {
-      filter.price = { $regex: req.query.price, $options: "i" };
-    }
-    if (req.query.from_type) {
-      filter.from_type = { $regex: req.query.from_type, $options: "i" };
-    }
-    if (req.query.status) {
-      filter.status = { $regex: req.query.status, $options: "i" };
-    }
+    const queryFields = ["name", "offer_type", "price", "from_time", "status"];
+    queryFields.forEach((key) => {
+      const value = req.query[key];
+      if (!value) return;
+
+      filter[key] = { $regex: value, $options: "i" };
+    });
 
     const totalOffers = await Offers.countDocuments(filter);
     if (totalOffers === 0) {
@@ -158,10 +145,9 @@ export const getAdminOffers = async (req, res) => {
       "Per-Page": limit,
     });
 
-    res.status(200).json({
+    return res.status(200).json({
       offers: offersWithLocales,
     });
-    res.status(200).json({ offers });
   } catch (error) {
     console.log(`Error getting admin offers: ${error}`);
     res.status(500).json({ error: "Error getting admin offers" });

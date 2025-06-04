@@ -42,9 +42,7 @@ export const getOffers = async (req, res) => {
     const { id: workspace_id } = workspace;
 
     const filter = { workspace_id: workspace_id };
-    if (req.query.name) {
-      filter.name = { $regex: req.query.name, $options: "i" };
-    }
+
     if (req.query.location_id || req.user.user_type === "cowork_user") {
       const locationId = Number(req.query.location_id || location_id);
       if (isNaN(locationId)) {
@@ -52,18 +50,13 @@ export const getOffers = async (req, res) => {
       }
       filter.location_id = locationId;
     }
-    if (req.query.offer_type) {
-      filter.offer_type = { $regex: req.query.offer_type, $options: "i" };
-    }
-    if (req.query.price) {
-      filter.price = { $regex: req.query.price, $options: "i" };
-    }
-    if (req.query.from_type) {
-      filter.from_type = { $regex: req.query.from_type, $options: "i" };
-    }
-    if (req.query.status) {
-      filter.status = { $regex: req.query.status, $options: "i" };
-    }
+    const queryFields = ["name", "offer_type", "price", "from_time", "status"];
+    queryFields.forEach((key) => {
+      const value = req.query[key];
+      if (!value) return;
+
+      filter[key] = { $regex: value, $options: "i" };
+    });
 
     const totalOffers = await Offers.countDocuments(filter);
     if (totalOffers === 0) {

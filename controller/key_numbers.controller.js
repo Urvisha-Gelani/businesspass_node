@@ -31,34 +31,23 @@ export const getKeyNumbers = async (req, res) => {
     const { workspace } = req.user;
     const { id: workspace_id } = workspace;
     const filter = { workspace_id: workspace_id };
-    if (req.query.name) {
-      filter.name = { $regex: req.query.name, $options: "i" };
-    }
+    const queryFields = [
+      "name",
+      "email",
+      "offer_name",
+      "price",
+      "created_at",
+      "issued_by",
+      "key_number",
+      "status",
+    ];
 
-    if (req.query.email) {
-      filter.email = { $regex: req.query.email, $options: "i" };
-    }
+    queryFields.forEach((key) => {
+      const value = req.query[key];
+      if (!value) return;
 
-    if (req.query.offer_name) {
-      filter.offer_name = { $regex: req.query.offer_name, $options: "i" };
-    }
-
-    if (req.query.price) {
-      filter.price = { $regex: req.query.price, $options: "i" };
-    }
-
-    if (req.query.created_at) {
-      filter.created_at = { $regex: req.query.created_at, $options: "i" };
-    }
-    if (req.query.issued_by) {
-      filter.issued_by = { $regex: req.query.issued_by, $options: "i" };
-    }
-    if (req.query.key_number) {
-      filter.key_number = { $regex: req.query.key_number, $options: "i" };
-    }
-    if (req.query.status) {
-      filter.status = { $regex: req.query.status, $options: "i" };
-    }
+      filter[key] = { $regex: value, $options: "i" };
+    });
     const totalKeyNumbers = await KeyNumbers.countDocuments(filter);
     if (totalKeyNumbers === 0) {
       return res.status(200).json([]);
@@ -69,12 +58,12 @@ export const getKeyNumbers = async (req, res) => {
       .limit(limit);
 
     res.set({
-      "Total": totalKeyNumbers,
+      Total: totalKeyNumbers,
       "Total-Pages": Math.ceil(totalKeyNumbers / limit),
       "Current-Page": page,
       "Per-Page": limit,
     });
-    
+
     res.status(200).json({ key_numbers: keyNumbers });
   } catch (error) {
     logger.error(`Error getting key numbers: ${error}`);

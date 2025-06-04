@@ -24,9 +24,31 @@ const keyNumbersCreated = async (keyNumbersData) => {
   const issued_by = `${first_name} ${last_name}`;
   const results = [];
   const offer = await Offers.findOne({ ref_id })
-    .select({ id: 1, name: 1, _id: 0, price: 1, keys: 1 })
+    .select({
+      id: 1,
+      name: 1,
+      _id: 0,
+      price: 1,
+      keys: 1,
+      limited_per: 1,
+      remaining_space: 1,
+      status: 1,
+    })
     .lean();
-  const { id: offer_id, name: offer_name, price, keys } = offer;
+
+  if (!offer) {
+    throw new Error(`Offer not found for ref_id: ${ref_id}`);
+  }
+
+  const {
+    id: offer_id,
+    name: offer_name,
+    price,
+    keys,
+    limited_per,
+    remaining_space,
+    status,
+  } = offer;
 
   for (const userDetail of user_details) {
     const nextUniqueKeyNumber = await generateKeyNumber();
@@ -74,7 +96,7 @@ const keyNumbersCreated = async (keyNumbersData) => {
     });
     console.log("newUser", newUser);
     await newUser.save();
-    // Save key number
+
     const newKeyNumberData = new KeyNumbers({
       id: nextKeyNumberId,
       name,
@@ -96,12 +118,31 @@ const keyNumbersCreated = async (keyNumbersData) => {
     });
     console.log("newKeyNumberData", newKeyNumberData);
     await newKeyNumberData.save();
-
     results.push({
       key_number: newKeyNumberData,
       error: null,
     });
   }
+
+  const updatedLimitedPer = Number(limited_per) - Number(results.length);
+  const updatedRemainingSpace = remaining_space - Number(results.length);
+  const offerStatus =
+    updatedLimitedPer === 0 && updatedRemainingSpace === 0
+      ? "limit_reached"
+      : status;
+  console.log("updatedLimitedPer", updatedLimitedPer);
+  console.log("updatedRemainingSpace", updatedRemainingSpace);
+
+  await Offers.findOneAndUpdate(
+    { ref_id },
+    {
+      $set: {
+        limited_per: String(updatedLimitedPer),
+        remaining_space: updatedRemainingSpace,
+        status: offerStatus,
+      },
+    }
+  );
   console.log("results", results);
   return results;
 };

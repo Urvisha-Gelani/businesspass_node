@@ -51,25 +51,20 @@ export const getLocations = async (req, res) => {
     if (req.user.user_type === "cowork_user") {
       filter.id = req.user.location_id;
     }
+    const queryFields = [
+      "name",
+      "address",
+      "phone_no",
+      "country_name",
+      "status",
+    ];
 
-    if (req.query.name) {
-      filter.name = { $regex: req.query.name, $options: "i" };
-    }
+    queryFields.forEach((key) => {
+      const value = req.query[key];
+      if (!value) return;
 
-    if (req.query.address) {
-      filter.address = { $regex: req.query.address, $options: "i" };
-    }
-
-    if (req.query.phone_no) {
-      filter.phone_no = { $regex: req.query.phone_no, $options: "i" };
-    }
-
-    if (req.query.country_name) {
-      filter.country_name = { $regex: req.query.country_name, $options: "i" };
-    }
-    if (req.query.status) {
-      filter.status = { $regex: req.query.status, $options: "i" };
-    }
+      filter[key] = { $regex: value, $options: "i" };
+    });
 
     const totalLocations = await Locations.countDocuments(filter);
     if (totalLocations === 0) {
@@ -82,7 +77,7 @@ export const getLocations = async (req, res) => {
       .limit(limit);
 
     res.set({
-      "Total": totalLocations,
+      Total: totalLocations,
       "Total-Pages": Math.ceil(totalLocations / limit),
       "Current-Page": page,
       "Per-Page": limit,

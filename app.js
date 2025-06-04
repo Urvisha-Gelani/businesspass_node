@@ -15,25 +15,31 @@ import offerLocalesRouter from "./routes/offer_locales.routes.js";
 import keyListingRouter from "./routes/key_listing.routes.js";
 import coWorkUserRouter from "./routes/cowork_user.routes.js";
 import keyNumbersRouter from "./routes/key_numbers.routes.js";
+import bookingsRouter from "./routes/bookings.routes.js";
+import { apiRoutes } from "./constant/index.js";
 
 const app = express();
 app.use(corsMiddleware);
 app.use(express.json());
 
-app.use("/api/v1", verifyUserRouter);
-app.use("/api/v1", adminRouter);
-app.use("/api/v1", exploreMembershipRouter);
-app.use("/api/v1/admin", userRouter);
-app.use("/api/v1/users", authRouter);
-app.use("/api/v1", countriesRouter);
-app.use("/api/v1", locationRouter);
-app.use("/api/v1", offersRouter);
-app.use("/api/v1", offerLocalesRouter);
-app.use("/api/v1", coWorkUserRouter);
-app.use("/api/v1", keyListingRouter);
-app.use("/api/v1", keyNumbersRouter);
+app.use(apiRoutes, verifyUserRouter);
+app.use(apiRoutes, adminRouter);
+app.use(apiRoutes, exploreMembershipRouter);
+app.use(`${apiRoutes}/admin`, userRouter);
+app.use(`${apiRoutes}/users`, authRouter);
+app.use(apiRoutes, countriesRouter);
+app.use(apiRoutes, locationRouter);
+app.use(apiRoutes, offersRouter);
+app.use(apiRoutes, offerLocalesRouter);
+app.use(apiRoutes, coWorkUserRouter);
+app.use(apiRoutes, keyListingRouter);
+app.use(apiRoutes, keyNumbersRouter);
+app.use(apiRoutes, bookingsRouter);
 app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
-app.use("/api/v1/conversion_rates/default_conversion_rate", conversionRates);
+app.use(
+  `${apiRoutes}/conversion_rates/default_conversion_rate`,
+  conversionRates
+);
 
 app.use(errorHandler);
 

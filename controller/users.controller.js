@@ -51,39 +51,40 @@ export const getAllUsers = async (req, res) => {
     const { id: user_id } = user;
     const filter = { created_by_id: user_id };
     console.log("filter", filter);
-    if (req.query.name) {
-      filter.$or = [
-        { first_name: { $regex: req.query.name, $options: "i" } },
-        { last_name: { $regex: req.query.name, $options: "i" } },
-      ];
-    }
+    const queryFields = [
+      "name",
+      "email",
+      "country_name",
+      "phone",
+      "user_type",
+      "workspace",
+      "status",
+    ];
 
-    if (req.query.email) {
-      filter.email = { $regex: req.query.email, $options: "i" };
-    }
+    queryFields.forEach((key) => {
+      const value = req.query[key];
+      if (!value) return;
+      if (key === "name") {
+        filter.$or = [
+          { first_name: { $regex: req.query.name, $options: "i" } },
+          { last_name: { $regex: req.query.name, $options: "i" } },
+        ];
+      } else if (key === "workspace") {
+        filter["workspace.name"] = {
+          $regex: req.query.workspace,
+          $options: "i",
+        };
+      } else {
+        filter[key] = { $regex: value, $options: "i" };
+      }
+    });
 
-    if (req.query.country_name) {
-      filter.country_name = { $regex: req.query.country_name, $options: "i" };
-    }
-
-    if (req.query.phone) {
-      filter.phone = { $regex: req.query.phone, $options: "i" };
-    }
-
-    if (req.query.user_type) {
-      filter.user_type = { $regex: req.query.user_type, $options: "i" };
-    }
-
-    if (req.query.workspace) {
-      filter["workspace.name"] = { $regex: req.query.workspace, $options: "i" };
-    }
-    if (req.query.status) {
-      filter.status = { $regex: req.query.status, $options: "i" };
-    }
     if (req.query.with_guest === "false") {
       filter.user_type = { $ne: "guest" };
     }
-
+    if (req.query.with_guest === "false" && req.query.user_type === "guest") {
+      return res.status(200).json([]);
+    }
     const totalUsers = await Users.countDocuments(filter);
 
     if (totalUsers === 0) {
